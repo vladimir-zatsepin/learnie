@@ -1,6 +1,8 @@
 import {
   ChoiceQuizBlock,
-  LearningBlockType, LearningPlanStyle,
+  GameBlock,
+  LearningBlockType,
+  LearningPlanStyle,
   MaterialBlock,
   QuizResult,
   Subtopic,
@@ -9,10 +11,7 @@ import {
   Topics,
   TrueFalseQuizBlock
 } from "../models.ts";
-import {
-  materialSizeDescriptions,
-  materialStyleDescriptions,
-} from "../LearningStyleDescriptions";
+import {materialSizeDescriptions, materialStyleDescriptions,} from "../LearningStyleDescriptions";
 import {ClarificationQuestion, LearnieAgent} from "./LearnieAgent.ts";
 import axios, {AxiosError} from "axios";
 import {v4 as uuidv4} from 'uuid';
@@ -159,6 +158,47 @@ export class RemoteLearnieAgent implements LearnieAgent {
       console.error('Error sending quiz results to agent:', error);
       return 0; // Return a default value when error occurs
     }
+  }
+
+  async generateHtmlGame(topic: Topic, subtopicId: string): Promise<GameBlock> {
+    await this.createSessionIfNotExists(topic.id);
+    const subtopic = Topics.getSubtopicInTopic(topic, subtopicId);
+    const summary = Subtopics.summarizeLearningBlocks(subtopic);
+
+    const requestPrompt = `
+      Generate an HTML game for subtopic:
+        - topic title: ${topic.title}
+        - subtopic title: ${subtopic.title}
+        - summary: ${subtopic.summary}
+
+      Material:
+        ${summary}
+    `;
+
+    const response = await axios.post('/api/run', {
+      app_name: this.agentName,
+      user_id: this.userId,
+      session_id: topic.id,
+      new_message: {
+        role: 'user',
+        parts: [
+          {
+            text: requestPrompt
+          }
+        ]
+      }
+    });
+    const data = response.data;
+    console.log('Response:', data);
+    const lastPart = data[data.length - 1].content.parts[0].text;
+
+    const htmlContent = lastPart.replace(/^```html\n/, '').replace(/```$/, '')
+    // Create a GameBlock with the HTML content
+    return {
+      type: LearningBlockType.GAME,
+      title: `Interactive Game: ${subtopic.title}`,
+      htmlContent: htmlContent
+    };
   }
 
   private async request(sessionId: string, prompt: string): Promise<unknown> {

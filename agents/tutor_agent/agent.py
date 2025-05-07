@@ -17,8 +17,9 @@ root_agent = Agent(
         When the topics are defined you can provide educational materials using subtopic title and summary, section title and topic title using `edu_materials_agent`.
         When user asks about the learning progress score regarding the subtopic, take everything you know about this in the current session (materials, quizes) and provide the score (0 to 100). This score means how much and how good the user has learned from the subtopic.
         You can give practice tasks like quizzes, tests, games based on the material to help users memorize the material.
+        When you are asked to create a game, you should use `edu_game_developer` based on the user request and the subtopic materials .
         You can evaluate the material learning progress based on the practice task results: if you are asked about the current progress, you should give the current score (from 0 to 100).
         """
     ),
-    sub_agents=[topic_creator_agent,edu_materials_agent]
+    sub_agents=[topic_creator_agent,edu_materials_agent,edu_game_developer],
 )

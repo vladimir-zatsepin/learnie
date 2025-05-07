@@ -22,7 +22,7 @@ import {CircleLoader} from 'react-spinners';
 import {Section, Subtopic} from "../../services/models";
 import LearningBlockView from './LearningBlockView';
 import Steps from './../Steps';
-import {FaTrash, FaEllipsisV, FaBook, FaPlay, FaQuestionCircle, FaPlus, FaListOl, FaMagic} from 'react-icons/fa';
+import {FaTrash, FaEllipsisV, FaBook, FaPlay, FaQuestionCircle, FaPlus, FaListOl, FaMagic, FaGamepad} from 'react-icons/fa';
 import {LearningStyleDialog} from '../LearningStyleDialog';
 
 
@@ -35,6 +35,8 @@ interface LearningBlockProps {
   isGeneratingQuiz?: boolean;
   onGenerateChoiceQuiz: (subtopicId: string) => void;
   isGeneratingChoiceQuiz?: boolean;
+  onGenerateGame?: (subtopicId: string) => void;
+  isGeneratingGame?: boolean;
   onGenerateSubtopic?: (subtopicId: string, generalContext?: string) => void;
   isGeneratingSubtopic?: boolean;
   onRemoveSubtopic?: (subtopicId: string) => void;
@@ -55,6 +57,8 @@ const SubtopicView: React.FC<LearningBlockProps> = ({
                                                       isGeneratingQuiz,
                                                       onGenerateChoiceQuiz,
                                                       isGeneratingChoiceQuiz,
+                                                      onGenerateGame,
+                                                      isGeneratingGame,
                                                       onGenerateSubtopic,
                                                       isGeneratingSubtopic,
                                                       onRemoveSubtopic,
@@ -205,31 +209,40 @@ const SubtopicView: React.FC<LearningBlockProps> = ({
                     as={Button}
                     colorScheme="teal"
                     size="sm"
-                    disabled={isGeneratingQuiz || isGeneratingChoiceQuiz}
-                    leftIcon={isGeneratingQuiz || isGeneratingChoiceQuiz ?
+                    disabled={isGeneratingQuiz || isGeneratingChoiceQuiz || isGeneratingGame}
+                    leftIcon={isGeneratingQuiz || isGeneratingChoiceQuiz || isGeneratingGame ?
                       <Flex align="center" justify="center">
                         <CircleLoader size={16} color="var(--chakra-colors-teal-500)"/>
                       </Flex> :
                       <Icon as={FaQuestionCircle}/>
                     }
                   >
-                    {isGeneratingQuiz || isGeneratingChoiceQuiz ? "Generating..." : "Practice"}
+                    {isGeneratingQuiz || isGeneratingChoiceQuiz || isGeneratingGame ? "Generating..." : "Practice"}
                   </MenuButton>
                   <MenuList>
                     <MenuItem
                       icon={<Icon as={FaQuestionCircle}/>}
                       onClick={() => onGenerateQuiz(subtopic.id)}
-                      isDisabled={isGeneratingQuiz || isGeneratingChoiceQuiz}
+                      isDisabled={isGeneratingQuiz || isGeneratingChoiceQuiz || isGeneratingGame}
                     >
                       True/False Quiz
                     </MenuItem>
                     <MenuItem
                       icon={<Icon as={FaListOl}/>}
                       onClick={() => onGenerateChoiceQuiz(subtopic.id)}
-                      isDisabled={isGeneratingQuiz || isGeneratingChoiceQuiz}
+                      isDisabled={isGeneratingQuiz || isGeneratingChoiceQuiz || isGeneratingGame}
                     >
                       Multiple Choice Quiz
                     </MenuItem>
+                    {onGenerateGame && (
+                      <MenuItem
+                        icon={<Icon as={FaGamepad}/>}
+                        onClick={() => onGenerateGame(subtopic.id)}
+                        isDisabled={isGeneratingQuiz || isGeneratingChoiceQuiz || isGeneratingGame}
+                      >
+                        Interactive Game
+                      </MenuItem>
+                    )}
                   </MenuList>
                 </Menu>
                 {hasNext && nextSubtopic && (

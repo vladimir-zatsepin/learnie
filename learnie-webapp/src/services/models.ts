@@ -68,7 +68,8 @@ export interface Subtopic {
 export enum LearningBlockType {
   MATERIAL = 'MATERIAL',
   QUIZ_TRUE_FALSE = 'QUIZ_TRUE_FALSE',
-  QUIZ_CHOICE = 'QUIZ_CHOICE'
+  QUIZ_CHOICE = 'QUIZ_CHOICE',
+  GAME = 'GAME'
 }
 
 export interface LearningBlock {
@@ -81,6 +82,13 @@ export interface MaterialBlock extends LearningBlock {
   material: string | MaterialPart[];
   summary?: string; // Short summary up to 255 words
   references?: Reference[]; // External resources references
+}
+
+export interface GameBlock extends LearningBlock {
+  type: LearningBlockType.GAME;
+  title: string;
+  htmlContent: string;
+  summary?: string; // Short summary up to 255 words
 }
 
 export interface MaterialPart {
@@ -195,18 +203,37 @@ export class Subtopics {
     let summary = "";
     if (subtopic.learningBlocks && subtopic.learningBlocks.length > 0) {
       summary = "Existing Learning Blocks:\n";
-      subtopic.learningBlocks
+
+      // Process material blocks
+      const materialBlocks = subtopic.learningBlocks
         .filter(block => block.type === LearningBlockType.MATERIAL)
-        .map(block => block as MaterialBlock)
-        .forEach((block, index) => {
-          let material = ''
-          if (Array.isArray(block.material)) {
-            material = block.material.map(part => part.text).join('\n');
-          } else {
-            material = block.material;
+        .map(block => block as MaterialBlock);
+
+      materialBlocks.forEach((block, index) => {
+        let material = ''
+        if (Array.isArray(block.material)) {
+          material = block.material.map(part => part.text).join('\n');
+        } else {
+          material = block.material;
+        }
+        summary += `Block ${index + 1}: ${block.title}\n${material}\n\n`;
+      });
+
+      // Process game blocks
+      const gameBlocks = subtopic.learningBlocks
+        .filter(block => block.type === LearningBlockType.GAME)
+        .map(block => block as GameBlock);
+
+      if (gameBlocks.length > 0) {
+        summary += "Game Blocks:\n";
+        gameBlocks.forEach((block, index) => {
+          summary += `Game ${index + 1}: ${block.title}\n`;
+          if (block.summary) {
+            summary += `${block.summary}\n`;
           }
-          summary += `Block ${index + 1}: ${block.title}\n${material}\n\n`;
+          summary += "\n";
         });
+      }
     }
     return summary;
   }

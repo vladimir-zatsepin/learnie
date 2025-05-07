@@ -17,6 +17,7 @@ const SubtopicPage: React.FC = () => {
   const [isGeneratingBlock, setIsGeneratingBlock] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [isGeneratingChoiceQuiz, setIsGeneratingChoiceQuiz] = useState(false);
+  const [isGeneratingGame, setIsGeneratingGame] = useState(false);
   const [section, setSection] = useState<Section | null>(null);
   const [subtopic, setSubtopic] = useState<Subtopic | null>(null);
 
@@ -195,6 +196,40 @@ const SubtopicPage: React.FC = () => {
     }
   }, [currentTopic, updateSubtopic]);
 
+  // Handle generating a game for a subtopic
+  const handleGenerateGame = useCallback(async (subtopicId: string) => {
+    if (!currentTopic) return;
+
+    try {
+      setIsGeneratingGame(true);
+
+      // Get the AI provider from the factory
+      const aiProvider = LearnieAgentFactory.getAgent();
+
+      // Generate the game
+      const gameBlock = await aiProvider.generateHtmlGame(currentTopic, subtopicId);
+
+      // Get the subtopic
+      const subtopic = Topics.getSubtopicInTopic(currentTopic, subtopicId);
+
+      // Update the subtopic with the new game block
+      const updatedSubtopic = {
+        ...subtopic,
+        learningBlocks: [...(subtopic.learningBlocks || []), gameBlock]
+      };
+
+      // Update the subtopic in the topic tree
+      updateSubtopic(currentTopic.id, updatedSubtopic);
+
+      // Update the selected node
+      setSubtopic(updatedSubtopic);
+    } catch (error) {
+      console.error('Error generating game:', error);
+    } finally {
+      setIsGeneratingGame(false);
+    }
+  }, [currentTopic, updateSubtopic]);
+
   // Handle deleting a learning block from a subtopic
   const handleDeleteBlock = useCallback((subtopicId: string, blockIndex: number) => {
     if (!currentTopic) return;
@@ -257,6 +292,8 @@ const SubtopicPage: React.FC = () => {
           isGeneratingQuiz={isGeneratingQuiz}
           onGenerateChoiceQuiz={handleGenerateChoiceQuiz}
           isGeneratingChoiceQuiz={isGeneratingChoiceQuiz}
+          onGenerateGame={handleGenerateGame}
+          isGeneratingGame={isGeneratingGame}
           onDeleteBlock={handleDeleteBlock}
           onNavigateToSubtopic={handleNavigateToSubtopic}
           dfsNavigation={currentTopic ? getDFSNavigation(currentTopic, subtopic.id) : null}

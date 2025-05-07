@@ -5,7 +5,8 @@ import {
   Subtopic,
   Topic,
   QuizResult,
-  LearningPlanStyle
+  LearningPlanStyle,
+  GameBlock
 } from "../models.ts";
 
 /**
@@ -41,4 +42,12 @@ export interface LearnieAgent {
   generateSubtopicSuggestions(topic: Topic, parentSubtopicId: string): Promise<Subtopic>
 
   sendQuizResultsAndGetSubtopicScore(topicId: string, quizResult: QuizResult): Promise<number>
+
+  /**
+   * Generate an HTML game based on the subtopic title, user's prompt, learning plan type, and already learnt material
+   * @param topic The topic containing the subtopic
+   * @param subtopicId The ID of the subtopic
+   * @returns Promise with the generated HTML game as a GameBlock
+   */
+  generateHtmlGame(topic: Topic, subtopicId: string): Promise<GameBlock>;
 }

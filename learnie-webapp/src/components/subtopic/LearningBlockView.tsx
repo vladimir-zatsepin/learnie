@@ -6,11 +6,13 @@ import {
   TrueFalseQuizBlock,
   ChoiceQuizBlock,
   QuizResult,
-  QuizQuestionResult
+  QuizQuestionResult,
+  GameBlock
 } from "../../services/models";
 import TrueFalseQuizView from './TrueFalseQuizView.tsx';
 import ChoiceQuizView from './ChoiceQuizView.tsx';
 import MaterialBlockView from './MaterialBlockView';
+import GameBlockView from './GameBlockView';
 import {useLearning} from "../../hooks/useLearning";
 import {LearnieAgentFactory} from "../../services/ai";
 
@@ -138,6 +140,12 @@ const LearningBlockView: React.FC<LearningBlockProps> = ({block, onDelete, subto
       onDelete={onDelete ? (b) => onDelete(b) : undefined}
       onQuizComplete={handleQuizComplete}
     />;
+  }
+
+  // Render game block
+  if (block.type === LearningBlockType.GAME) {
+    const gameBlock = block as GameBlock;
+    return <GameBlockView block={gameBlock} onDelete={onDelete ? (b) => onDelete(b) : undefined} />;
   }
 
   // Render regular material block
