@@ -173,7 +173,7 @@ export const LearningStyleDialog: React.FC<LearningStyleDialogProps> = ({isOpen,
                     <Button variant="ghost" mr={3} onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button bg="brand500" color="white" _hover={{ bg: "brand600" }} onClick={handleSave}>
+                    <Button colorScheme="brand" color="white" _hover={{ bg: "brand600" }} onClick={handleSave}>
                         Save
                     </Button>
                 </ModalFooter>

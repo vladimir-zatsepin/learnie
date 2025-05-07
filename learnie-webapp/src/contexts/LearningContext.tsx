@@ -39,7 +39,10 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({children}) 
 
 
   const addTopic = async (topic: Topic) => {
-    const updatedTopic = {...topic};
+    const updatedTopic = {
+      ...topic,
+      learningStyle: topic.learningStyle || defaultLearningStyle
+    };
     setTopics(prevTopics => [...prevTopics, updatedTopic]);
   };
 
