@@ -3,7 +3,7 @@ GOOGLE_GENAI_USE_VERTEXAI=TRUE
 GOOGLE_CLOUD_PROJECT=learnie-459115
 GOOGLE_CLOUD_LOCATION=us-central1
 SERVICE_NAME=learnie
-APP_NAME=tutor-agent
+APP_NAME=tutor_agent
 AGENT_PATH=tutor_agent
 
 adk deploy cloud_run \

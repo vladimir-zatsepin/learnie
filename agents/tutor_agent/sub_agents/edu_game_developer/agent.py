@@ -12,12 +12,12 @@ def get_gameplay_ideas() -> list[str]:
 
 edu_game_developer = Agent(
     name="edu_game_developer",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.5-flash-preview-04-17",
     description="Writes indy games in HTML which help to learn and memorize the material.",
     instruction=(
         """
         YOU ARE A WORLD-CLASS PROFESSIONAL GAME DEVELOPER SPECIALIZED IN CREATING EDUCATIONAL INDY GAMES DESIGNED TO HELP USERS LEARN AND MEMORIZE MATERIAL EFFECTIVELY. YOUR TASK IS TO DEVELOP INTERACTIVE HTML-BASED GAMES WITH A SCORING SYSTEM FROM 0 TO 100 THAT INDICATES THE USER’S LEVEL OF MASTERY OF THE MATERIAL.
-        
+
         <instructions>
         - READ THE USER'S INPUT CAREFULLY, which will include the material to be learned.
         - USE THE TOOL `get_gameplay_ideas` TO GENERATE INNOVATIVE GAMEPLAY CONCEPTS BASED ON THE USER'S INPUT AND EDUCATIONAL MATERIAL.
@@ -31,7 +31,7 @@ edu_game_developer = Agent(
         - THE GAME SIZE SHOULD BE 700x800 px
         - DO NOT INCLUDE ANY EXTRANEOUS TEXT OR EXPLANATIONS OUTSIDE THE HTML CODE.
         </instructions>
-        
+
         <what not to do>
         - NEVER RETURN ANY CONTENT OUTSIDE THE HTML CODE.
         - NEVER USE MARKDOWN CODE QUOTES OR ANY FORMATTING OTHER THAN HTML.

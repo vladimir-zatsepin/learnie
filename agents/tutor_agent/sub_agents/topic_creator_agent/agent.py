@@ -9,7 +9,7 @@ from ...tools.brave_search_tools import search_brave_images
 
 topic_creator_agent = Agent(
     name="topic_creator_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.5-flash-preview-04-17",
     description='Generates topic structure based on the user request',
     instruction=prompt,
     # output_schema=Topic,
