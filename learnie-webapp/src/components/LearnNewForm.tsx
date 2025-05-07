@@ -113,6 +113,13 @@ function LearnNewForm({onTopicCreated}: LearnNewFormProps) {
             </LoadingButton>
           </Flex>
 
+          {/* Loading hint message */}
+          {isLoading && (
+            <Text fontSize="sm" color="gray.600" textAlign="center" mt={2}>
+              Generation might take a while. Please be patient...
+            </Text>
+          )}
+
           {/* Vibe Switch */}
           <Flex width="100%" justify="space-between" align="center" mb={2}>
             <Box bgGradient="linear(to-r, purple.400, pink.400)" borderRadius="md" p={2} mr={2} cursor="pointer">
