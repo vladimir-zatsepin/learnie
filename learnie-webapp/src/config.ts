@@ -26,7 +26,7 @@ export const analytics = getAnalytics(firebaseApp);
 export const config = {
   ai: {
     provider: 'remote' as 'openai' | 'remote',
-    apiKey: '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', // Replace with your actual OpenAI API key
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY || '', // Uses environment variable or falls back to default
     model: 'gpt-4.1-mini' as ChatModel,
   },
   firebase: firebaseConfig

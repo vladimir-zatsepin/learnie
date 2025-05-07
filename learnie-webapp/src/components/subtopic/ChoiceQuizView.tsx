@@ -20,7 +20,7 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import {ChevronLeftIcon, ChevronRightIcon} from '@chakra-ui/icons';
-import {ChoiceQuizBlock} from "../services/models.ts";
+import {ChoiceQuizBlock} from "../../services/models.ts";
 import {FaQuestionCircle, FaTrash, FaChevronDown, FaChevronUp, FaCheckCircle} from 'react-icons/fa';
 
 interface ChoiceQuizBlockProps {

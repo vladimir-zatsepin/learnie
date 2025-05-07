@@ -2,9 +2,9 @@ import {MaterialSize, MaterialStyle, QuizDifficulty, QuizSize, LearningPlanType}
 
 // Material size descriptions
 export const materialSizeDescriptions: Record<MaterialSize, string> = {
-  [MaterialSize.SMALL]: "Concise content with essential information. 1 min reading time",
-  [MaterialSize.MEDIUM]: "Balanced content with good detail. 5 mins reading time.",
-  [MaterialSize.LARGE]: "Comprehensive content with in-depth explanations. 10 mins reading time."
+  [MaterialSize.SMALL]: "Concise content with essential information. Less then 1 min reading time",
+  [MaterialSize.MEDIUM]: "Balanced content with good detail. Less then 3 mins reading time.",
+  [MaterialSize.LARGE]: "Comprehensive content with in-depth explanations. 5 mins reading time."
 };
 
 // Material style descriptions

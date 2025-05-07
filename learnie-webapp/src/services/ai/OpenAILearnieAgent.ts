@@ -348,6 +348,7 @@ export class OpenAILearnieAgent implements LearnieAgent {
   }
 
   async sendQuizResultsAndGetSubtopicScore(topicId: string, quizResult: QuizResult): Promise<number> {
+    console.log(topicId);
     try {
       // Format questions for the prompt
       const questionsFormatted = quizResult.questions.map(q => {

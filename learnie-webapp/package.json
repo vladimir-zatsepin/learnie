@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "deploy": "firebase deploy --only hosting:ai-learnie",
+    "deploy:webapp": "firebase deploy --only hosting:ai-learnie",
+    "deploy:functions": "firebase deploy --only functions",
+    "build-and-deploy": "npm run build && npm run deploy:webapp",
     "lint": "eslint .",
     "preview": "vite preview"
   },
