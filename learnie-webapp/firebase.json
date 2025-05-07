@@ -10,7 +10,10 @@
     "rewrites": [
       {
         "source": "/api/**",
-        "destination": "proxyApi"
+        "function": {
+          "functionId": "proxyApi",
+          "region": "europe-west1"
+        }
       },
       {
         "source": "**",
