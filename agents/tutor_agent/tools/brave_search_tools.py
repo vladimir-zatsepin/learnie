@@ -16,7 +16,7 @@ def search_brave_images(query: str):
   Returns:
       dict with image_url field
   """
-  api_key = os.environ.get("BRAVE_API_KEY")
+  api_key = "BSAcV9iAQoGKd1rlqNHWo_ZIOI4tfeY"
   if not api_key:
     raise ValueError("BRAVE_API_KEY environment variable is not set")
 
