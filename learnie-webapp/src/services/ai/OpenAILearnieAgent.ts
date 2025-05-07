@@ -3,18 +3,20 @@ import {ClarificationQuestion, LearnieAgent} from './LearnieAgent.ts';
 import {
   ChoiceQuizBlock,
   LearningBlockType,
-  MaterialBlock, MaterialSize, MaterialStyle, QuizDifficulty, QuizSize,
-  Subtopic, Subtopics,
+  LearningPlanStyle,
+  MaterialBlock,
+  Subtopic,
+  Subtopics,
   Topic,
   Topics,
-  TrueFalseQuizBlock
+  TrueFalseQuizBlock,
+  QuizResult
 } from "../models.ts";
 import {
   materialSizeDescriptions,
   materialStyleDescriptions,
   quizDifficultyDescriptions,
-  quizSizeDescriptions,
-  learningPlanTypeDescriptions
+  quizSizeDescriptions
 } from "../LearningStyleDescriptions";
 import {
   generateChoiceQuizPrompt,
@@ -25,8 +27,8 @@ import {
   generateTopicPrompt,
   generateTrueFalseQuizPrompt
 } from './Prompts.ts';
-import ChatModel = OpenAI.ChatModel;
 import {LlmJson} from "./LlmJson.ts";
+import ChatModel = OpenAI.ChatModel;
 
 const DEFAULT_MODEL: ChatModel = 'gpt-4o';
 const MAX_TOKENS = 10000;
@@ -92,39 +94,27 @@ export class OpenAILearnieAgent implements LearnieAgent {
     }
   }
 
-  async generateTopic(prompt: string, clarificationAnswers?: ClarificationQuestion[]): Promise<Topic> {
+  async generateTopic(userInput: string, learningPlanStyle: LearningPlanStyle): Promise<Topic> {
     try {
-      // Following the new topic generation guideline
-      let clarificationInfo = '';
-
-      if (clarificationAnswers && clarificationAnswers.length > 0) {
-        clarificationInfo = `
-          Additional clarification information:
-          ${clarificationAnswers.map((qa, index) =>
-          `Question ${index + 1}: ${qa.question}
-             Answer ${index + 1}: ${qa.answer || 'No answer provided'}`
-        ).join('\n')}
-
-          Use this additional information to better tailor the learning module to the user's needs.
-        `;
-      }
+      // Create clarification info based on learning plan style
+      const clarificationInfo = `
+        Use the following learning plan style:
+        ${Topics.learningPlanStyleSummary(learningPlanStyle)}
+      `;
 
       // Use the prompt function from Prompts.ts
-      const fullPrompt = generateTopicPrompt(prompt, clarificationInfo);
+      const fullPrompt = generateTopicPrompt(userInput, clarificationInfo);
 
       const content = await this.jsonCompletion(fullPrompt);
       const topic = content as Topic;
 
-      // Store the clarification answers as a learningStylePrompt
-      if (clarificationAnswers && clarificationAnswers.length > 0) {
-        topic.learningStylePrompt = clarificationInfo;
-      }
+      // Set the learning plan style in the topic
+      topic.learningPlanStyle = learningPlanStyle;
 
       return topic;
     } catch (error) {
-      console.error('Error processing response with OpenAI:', error);
-      // Throw the error to trigger the error handling in App.tsx
-      throw error;
+      console.error('Error generating topic with OpenAI:', error);
+      throw new Error('Failed to generate topic with OpenAI');
     }
   }
 
@@ -146,11 +136,8 @@ export class OpenAILearnieAgent implements LearnieAgent {
         - Material style: ${topic.learningStyle.materialStyle} (${materialStyleDescriptions[topic.learningStyle.materialStyle]})
         - Quiz difficulty: ${topic.learningStyle.quizDifficulty} (${quizDifficultyDescriptions[topic.learningStyle.quizDifficulty]})
         - Quiz size: ${topic.learningStyle.quizSize} (${quizSizeDescriptions[topic.learningStyle.quizSize]})
-        ${topic.learningPlanType ? `- Learning plan type: ${topic.learningPlanType} (${learningPlanTypeDescriptions[topic.learningPlanType]})` : ''}
+        - Learning plan style: ${Topics.learningPlanStyleSummary(topic.learningPlanStyle)}
         `.trim();
-      } else if (topic.learningStylePrompt) {
-        // Fall back to legacy learning style prompt
-        userLearningStyle = topic.learningStylePrompt.trim();
       }
 
       // Use the prompt function from Prompts.ts with additional learning style info
@@ -186,19 +173,15 @@ export class OpenAILearnieAgent implements LearnieAgent {
       let userLearningStyle = '';
 
       if (topic.learningStyle) {
-
         // Format the structured learning style settings with descriptions
         userLearningStyle = `
-Learning Style Preferences:
-- Material size: ${topic.learningStyle.materialSize} (${materialSizeDescriptions[topic.learningStyle.materialSize]})
-- Material style: ${topic.learningStyle.materialStyle} (${materialStyleDescriptions[topic.learningStyle.materialStyle]})
-- Quiz difficulty: ${topic.learningStyle.quizDifficulty} (${quizDifficultyDescriptions[topic.learningStyle.quizDifficulty]})
-- Quiz size: ${topic.learningStyle.quizSize} (${quizSizeDescriptions[topic.learningStyle.quizSize]})
-${topic.learningPlanType ? `- Learning plan type: ${topic.learningPlanType} (${learningPlanTypeDescriptions[topic.learningPlanType]})` : ''}
+          Learning Style Preferences:
+          - Material size: ${topic.learningStyle.materialSize} (${materialSizeDescriptions[topic.learningStyle.materialSize]})
+          - Material style: ${topic.learningStyle.materialStyle} (${materialStyleDescriptions[topic.learningStyle.materialStyle]})
+          - Quiz difficulty: ${topic.learningStyle.quizDifficulty} (${quizDifficultyDescriptions[topic.learningStyle.quizDifficulty]})
+          - Quiz size: ${topic.learningStyle.quizSize} (${quizSizeDescriptions[topic.learningStyle.quizSize]})
+          - Learning plan style: ${Topics.learningPlanStyleSummary(topic.learningPlanStyle)}
         `.trim();
-      } else if (topic.learningStylePrompt) {
-        // Fall back to legacy learning style prompt
-        userLearningStyle = topic.learningStylePrompt.trim();
       }
 
       // Use the prompt function from Prompts.ts with additional learning style info
@@ -227,19 +210,15 @@ ${topic.learningPlanType ? `- Learning plan type: ${topic.learningPlanType} (${l
       let userLearningStyle = '';
 
       if (topic.learningStyle) {
-
         // Format the structured learning style settings with descriptions
         userLearningStyle = `
-Learning Style Preferences:
-- Material size: ${topic.learningStyle.materialSize} (${materialSizeDescriptions[topic.learningStyle.materialSize]})
-- Material style: ${topic.learningStyle.materialStyle} (${materialStyleDescriptions[topic.learningStyle.materialStyle]})
-- Quiz difficulty: ${topic.learningStyle.quizDifficulty} (${quizDifficultyDescriptions[topic.learningStyle.quizDifficulty]})
-- Quiz size: ${topic.learningStyle.quizSize} (${quizSizeDescriptions[topic.learningStyle.quizSize]})
-${topic.learningPlanType ? `- Learning plan type: ${topic.learningPlanType} (${learningPlanTypeDescriptions[topic.learningPlanType]})` : ''}
+          Learning Style Preferences:
+          - Material size: ${topic.learningStyle.materialSize} (${materialSizeDescriptions[topic.learningStyle.materialSize]})
+          - Material style: ${topic.learningStyle.materialStyle} (${materialStyleDescriptions[topic.learningStyle.materialStyle]})
+          - Quiz difficulty: ${topic.learningStyle.quizDifficulty} (${quizDifficultyDescriptions[topic.learningStyle.quizDifficulty]})
+          - Quiz size: ${topic.learningStyle.quizSize} (${quizSizeDescriptions[topic.learningStyle.quizSize]})
+          - Learning plan style: ${Topics.learningPlanStyleSummary(topic.learningPlanStyle)}
         `.trim();
-      } else if (topic.learningStylePrompt) {
-        // Fall back to legacy learning style prompt
-        userLearningStyle = topic.learningStylePrompt.trim();
       }
 
       // Use the prompt function from Prompts.ts with additional learning style info
@@ -366,5 +345,39 @@ ${topic.learningPlanType ? `- Learning plan type: ${topic.learningPlanType} (${l
     const json = LlmJson.parse(content);
     console.log('Response from OpenAI:', json);
     return json;
+  }
+
+  async sendQuizResultsAndGetSubtopicScore(topicId: string, quizResult: QuizResult): Promise<number> {
+    try {
+      // Format questions for the prompt
+      const questionsFormatted = quizResult.questions.map(q => {
+        return `
+          Question: ${q.question}
+          - User answer: ${q.userAnswer}
+          - Correct answer: ${q.correctAnswer}
+          Is correct: ${q.isCorrect}
+          ---
+        `;
+      }).join('\n');
+
+      const requestPrompt = `
+        Here is the quiz results subtopic title: ${quizResult.subtopicTitle}:
+          - PASSED: ${quizResult.passed}
+          - questions and results: ${questionsFormatted}
+
+        How good I know this subtopic now? Evaluate all my quizes regarding this subtopic and return me the score of how much of this subtopic material I've learnt where 100 means 'I fully know the subtopic'
+        You output is a single valid JSON without any other characters around the JSON. Example output: {"score": 70}
+      `;
+
+      const response = await this.jsonCompletion(requestPrompt);
+      console.log('Quiz results sent to OpenAI:', quizResult);
+
+      // Parse the score from the response
+      const scoreData = response as { score: number };
+      return scoreData.score;
+    } catch (error) {
+      console.error('Error sending quiz results to OpenAI:', error);
+      return 0; // Return a default value when error occurs
+    }
   }
 }

@@ -1,14 +1,15 @@
 import React, {useState, useEffect, ReactNode} from 'react';
 import {topicStorage} from '../services/storage/TopicStorage';
-import {LearningStyle, LearningPlanType, MaterialSize, MaterialStyle, QuizDifficulty, QuizSize, Subtopic, Topic} from "../services/models";
-import {LearningContext} from './LearningContextObject';
 import {
-  materialSizeDescriptions,
-  materialStyleDescriptions,
-  quizDifficultyDescriptions,
-  quizSizeDescriptions,
-  learningPlanTypeDescriptions
-} from "../services/LearningStyleDescriptions";
+  LearningStyle,
+  MaterialSize,
+  MaterialStyle,
+  QuizDifficulty,
+  QuizSize,
+  Subtopic,
+  Topic
+} from "../services/models";
+import {LearningContext} from './LearningContextObject';
 
 // Provider component
 export const LearningProvider: React.FC<{ children: ReactNode }> = ({children}) => {
@@ -254,56 +255,6 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({children}) 
     }
   };
 
-  // Update learning plan type for the current topic
-  const updateLearningPlanType = (planType: LearningPlanType): void => {
-    // Only update if there's a current topic
-    if (currentTopic) {
-      // Update the topic with the new learning plan type
-      const updatedTopic = {
-        ...currentTopic,
-        learningPlanType: planType
-      };
-
-      // Update current topic state
-      setCurrentTopicState(updatedTopic);
-
-      // Update the topic in the topics list
-      setTopics(prevTopics =>
-        prevTopics.map(topic =>
-          topic.id === currentTopic.id ? updatedTopic : topic
-        )
-      );
-    }
-  };
-
-  // Get formatted learning style prompt for AI based on current topic
-  const getLearningStylePrompt = (): string => {
-    // Use current topic's learning style if available, otherwise use default
-    const style = currentTopic?.learningStyle || defaultLearningStyle;
-
-    // Get learning plan type if available
-    const learningPlanType = currentTopic?.learningPlanType;
-
-    const materialSizeText = `Material size: ${style.materialSize} (${materialSizeDescriptions[style.materialSize]})`;
-    const materialStyleText = `Material style: ${style.materialStyle} (${materialStyleDescriptions[style.materialStyle]})`;
-    const quizDifficultyText = `Quiz difficulty: ${style.quizDifficulty} (${quizDifficultyDescriptions[style.quizDifficulty]})`;
-    const quizSizeText = `Quiz size: ${style.quizSize} (${quizSizeDescriptions[style.quizSize]})`;
-
-    // Create learning plan type text if available
-    const learningPlanTypeText = learningPlanType ?
-      `Learning plan type: ${learningPlanType} (${learningPlanTypeDescriptions[learningPlanType]})` :
-      '';
-
-    return `
-Learning Style Preferences:
-- ${materialSizeText}
-- ${materialStyleText}
-- ${quizDifficultyText}
-- ${quizSizeText}
-${learningPlanType ? `- ${learningPlanTypeText}` : ''}
-    `.trim();
-  };
-
   // Context value
   const value = {
     topics,
@@ -319,8 +270,6 @@ ${learningPlanType ? `- ${learningPlanTypeText}` : ''}
     getCurrentNode,
     // Learning style methods
     updateLearningStyle,
-    updateLearningPlanType,
-    getLearningStylePrompt,
   };
 
   return (

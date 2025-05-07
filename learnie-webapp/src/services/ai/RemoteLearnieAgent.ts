@@ -1,9 +1,7 @@
 import {
   ChoiceQuizBlock,
-  LearningBlockType,
+  LearningBlockType, LearningPlanStyle,
   MaterialBlock,
-  MaterialSize,
-  MaterialStyle,
   QuizResult,
   Subtopic,
   Subtopics,
@@ -14,7 +12,6 @@ import {
 import {
   materialSizeDescriptions,
   materialStyleDescriptions,
-  learningPlanTypeDescriptions
 } from "../LearningStyleDescriptions";
 import {ClarificationQuestion, LearnieAgent} from "./LearnieAgent.ts";
 import axios, {AxiosError} from "axios";
@@ -33,39 +30,23 @@ export class RemoteLearnieAgent implements LearnieAgent {
     return this.openAiDelegate.generateClarificationQuestions(prompt, previousQA, questionNumber);
   }
 
-  async generateTopic(prompt: string, _clarificationAnswers?: ClarificationQuestion[]): Promise<Topic> {
+  async generateTopic(userInput: string, learningPlanStyle: LearningPlanStyle): Promise<Topic> {
     const sessionId = uuidv4();
     await this.createSessionIfNotExists(sessionId);
 
-    // Get learning plan type from clarification answers if available
-    let learningPlanTypeInfo = '';
-    if (_clarificationAnswers && _clarificationAnswers.length > 0) {
-      const clarificationInfo = `
-        Additional clarification information:
-        ${_clarificationAnswers.map((qa, index) =>
-          `Question ${index + 1}: ${qa.question}
-           Answer ${index + 1}: ${qa.answer || 'No answer provided'}`
-        ).join('\n')}
-      `;
-      learningPlanTypeInfo = clarificationInfo;
-    }
+    const prompt = `
+      Generate a learning topic based on the following prompt:
+      ${userInput}
 
-    const promptRequest = `
-      Generate a topic based on the following prompt:
-      ${prompt}
-
-      ${learningPlanTypeInfo ? `User's learning style preferences:
-      ${learningPlanTypeInfo}
-
-      Use this additional information to better tailor the learning module to the user's needs.` : ''}
+      Use the following learning plan style:
+      ${Topics.learningPlanStyleSummary(learningPlanStyle)}
     `;
 
-    const topic = await this.request(sessionId, promptRequest) as Topic;
+    const topic = await this.request(sessionId, prompt) as Topic;
 
-    // Store the clarification answers as a learningStylePrompt
-    if (_clarificationAnswers && _clarificationAnswers.length > 0) {
-      topic.learningStylePrompt = learningPlanTypeInfo;
-    }
+    // Set the learning plan style in the topic
+    topic.learningPlanStyle = learningPlanStyle;
+
 
     this.setIds(topic, sessionId);
     return topic;
@@ -110,11 +91,6 @@ export class RemoteLearnieAgent implements LearnieAgent {
     const materialStyleDesc = topic.learningStyle?.materialStyle ?
       materialStyleDescriptions[topic.learningStyle.materialStyle] : "";
 
-    // Use custom prompt for learning plan type if provided, otherwise use default description
-    const learningPlanTypeDesc = topic.learningPlanTypePrompt ?
-      topic.learningPlanTypePrompt :
-      (topic.learningPlanType ? learningPlanTypeDescriptions[topic.learningPlanType] : "");
-
     const requestPrompt = `
       Generate learning material for subtopic:
         - topic title: ${topic.title}
@@ -125,7 +101,7 @@ export class RemoteLearnieAgent implements LearnieAgent {
       Use the following learning style preferences:
         - Material style: ${topic.learningStyle?.materialStyle} (${materialStyleDesc})
         - Material size: ${topic.learningStyle?.materialSize} (${materialSizeDesc})
-        - Learning plan type: ${topic.learningPlanType} (${learningPlanTypeDesc})
+        - Learning plan style: ${Topics.learningPlanStyleSummaryForTopic(topic)}
 
       Already learnt material:
         ${summary}

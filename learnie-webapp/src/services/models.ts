@@ -161,6 +161,31 @@ export class Topics {
     }
     throw new Error(`Subtopic with ID ${subtopicId} not found in topic ${topic.id}`);
   }
+
+  static learningPlanStyleSummaryForTopic(topic: Topic): string {
+    const learningPlanStyle = topic.learningPlanStyle;
+    return this.learningPlanStyleSummary(learningPlanStyle);
+  }
+
+  static learningPlanStyleSummary(learningPlanStyle?: LearningPlanStyle): string {
+    if (learningPlanStyle?.learningPlanTypePrompt) {
+      return learningPlanStyle.learningPlanTypePrompt;
+    } else if (learningPlanStyle?.learningPlanType) {
+      // Return a basic description based on the learning plan type
+      switch (learningPlanStyle.learningPlanType) {
+        case LearningPlanType.EXPLORER:
+          return "A flexible, discovery-based learning approach that adapts to your interests and helps you explore new topics organically.";
+        case LearningPlanType.ACHIEVER:
+          return "A goal-oriented, structured approach with clear milestones and measurable outcomes to efficiently reach specific learning objectives.";
+        case LearningPlanType.SOCIAL_LEARNER:
+          return "A collaborative learning experience that leverages community interaction, peer feedback, and group dynamics to enhance understanding and motivation.";
+        default:
+          return "";
+      }
+    } else {
+      return "No specific learning plan style selected";
+    }
+  }
 }
 
 

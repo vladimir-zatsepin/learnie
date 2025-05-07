@@ -1,5 +1,5 @@
 import {createContext} from 'react';
-import {LearningStyle, LearningPlanType, Subtopic, Topic} from "../services/models";
+import {LearningStyle, Subtopic, Topic} from "../services/models";
 
 // Define the context state and functions
 export interface LearningContextType {
@@ -15,11 +15,7 @@ export interface LearningContextType {
   // Common methods
   removeTopic: (topicId: string) => void; // Removes a topic
   setCurrentTopic: (topicId: string | null) => void;
-
-  // Learning style methods
   updateLearningStyle: (newStyle: Partial<LearningStyle>) => void; // Updates learning style settings
-  updateLearningPlanType: (planType: LearningPlanType) => void; // Updates learning plan type
-  getLearningStylePrompt: () => string; // Gets formatted learning style prompt for AI
 }
 
 // Create the context with a default value

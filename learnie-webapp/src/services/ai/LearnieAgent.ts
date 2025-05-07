@@ -4,7 +4,8 @@ import {
   ChoiceQuizBlock,
   Subtopic,
   Topic,
-  QuizResult
+  QuizResult,
+  LearningPlanStyle
 } from "../models.ts";
 
 /**
@@ -27,13 +28,7 @@ export interface LearnieAgent {
     questionNumber?: number
   ): Promise<ClarificationQuestion[]>;
 
-  /**
-   * Generate a topic based on a prompt and optional clarification answers
-   * @param prompt The user's learning request
-   * @param clarificationAnswers Optional array of clarification questions and answers
-   * @returns Promise with the generated topic
-   */
-  generateTopic(prompt: string, clarificationAnswers?: ClarificationQuestion[]): Promise<Topic>;
+  generateTopic(userInput: string, learningPlanStyle: LearningPlanStyle): Promise<Topic>;
 
   generateLearningBlock(topic: Topic, subtopicId: string, prompt?: string): Promise<MaterialBlock>;
 

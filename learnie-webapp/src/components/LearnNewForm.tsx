@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react'
+import {useState, useCallback} from 'react'
 import {
   VStack,
   Text,
@@ -13,9 +13,8 @@ import {
 } from '@chakra-ui/react'
 import LoadingButton from './LoadingButton'
 import {LearnieAgentFactory} from '../services/ai'
-import {ClarificationQuestion} from '../services/ai/LearnieAgent'
 import {useLearning} from "../hooks/useLearning";
-import {LearningPlanType} from "../services/models";
+import {LearningPlanStyle, LearningPlanType} from "../services/models";
 import {learningPlanTypeDescriptions} from "../services/LearningStyleDescriptions";
 import {FaMagic} from "react-icons/fa";
 
@@ -52,32 +51,18 @@ function LearnNewForm({onTopicCreated}: LearnNewFormProps) {
 
       let newTopicId: string;
       try {
-        // Create clarification answers with learning style information
-        const styleInfo: ClarificationQuestion[] = [];
-
-        // Add learning plan type as a clarification question
-        styleInfo.push({
-          question: "What learning plan type would you prefer?",
-          answer: `${learningPlanType} - ${learningPlanTypeDescriptions[learningPlanType]}`
-        });
+        // Create learning plan style object
+        const learningPlanStyle: LearningPlanStyle = {
+          learningPlanType: learningPlanType
+        };
 
         // Add custom prompt if provided
         if (learningPlanTypePrompt.trim()) {
-          styleInfo.push({
-            question: "Do you have any specific preferences for your learning experience?",
-            answer: learningPlanTypePrompt.trim()
-          });
+          learningPlanStyle.learningPlanTypePrompt = learningPlanTypePrompt.trim();
         }
 
-        // Generate a topic from the user's input with style information
-        const topic = await aiProvider.generateTopic(prompt, styleInfo)
-
-        // Add the learning plan type to the topic
-        topic.learningPlanType = learningPlanType;
-
-        if (learningPlanTypePrompt.trim()) {
-          topic.learningPlanTypePrompt = learningPlanTypePrompt.trim();
-        }
+        // Generate a topic from the user's input with learning plan style
+        const topic = await aiProvider.generateTopic(prompt, learningPlanStyle)
 
         addTopic(topic)
         newTopicId = topic.id
