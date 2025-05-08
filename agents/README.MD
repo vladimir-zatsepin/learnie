@@ -1,6 +1,9 @@
 # Learnie 🧑‍🏫
 **Vibe learning AI agent**
 
+## Architecture
+
+![learnie-agent.jpg](learnie-agent.jpg)
 
 ### Installation
 
