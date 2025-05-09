@@ -10,7 +10,8 @@ import {
   Topic,
   Topics,
   TrueFalseQuizBlock,
-  QuizResult
+  QuizResult,
+  GameBlock
 } from "../models.ts";
 import {
   materialSizeDescriptions,
@@ -55,6 +56,10 @@ export class OpenAILearnieAgent implements LearnieAgent {
       dangerouslyAllowBrowser: true,
     });
   }
+
+  generateHtmlGame(): Promise<GameBlock> {
+        throw new Error('Method not implemented.');
+    }
 
   async generateClarificationQuestions(
     prompt: string,
